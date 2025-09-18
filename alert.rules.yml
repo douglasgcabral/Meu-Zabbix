@@ -1,0 +1,129 @@
+groups:
+  - name: example_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Uso de CPU alto detectado"
+          description: "A CPU da instancia {{ $labels.instance }} esta acima de 80% por mais de 2 minutos."
+ 
+      - alert: HighMemoryUsage
+        expr: (node_memory_Active_bytes / node_memory_MemTotal_bytes) * 100 > 90
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Uso de memoria alto"
+          description: "A memoria da instancia {{ $labels.instance }} esta acima de 90%."
+ 
+      - alert: WebsiteDown   
+        expr: probe_success == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Site indisponivel"
+          description: "O endpoint {{ $labels.instance }} esta fora do ar por mais de 1 minuto."
+ 
+      - alert: DiskSpaceLow   
+        expr: 100 * (node_filesystem_avail_bytes / node_filesystem_size_bytes) < 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Espaco em disco baixo"
+          description: "O disco na instancia {{ $labels.instance }} tem menos de 10% de espaco livre."
+ 
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instancia nao responde"
+          description: "A instancia {{ $labels.instance }} esta inativa por mais de 1 minuto"
+ 
+      - alert: HighLoadAverage
+        expr: node_load1 > count by (instance) (node_cpu_seconds_total{mode="system"})
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Carga de sistema alta"
+          description: "Carga da instancia {{ $labels.instance }} esta maior que o numero de CPUs"
+ 
+      - alert: NodeRebooted
+        expr: time() - node_boot_time_seconds < 300
+        for: 0m
+        labels:
+          severity: info
+        annotations:
+          summary: "Reinicio detectado"
+          description: "A instancia {{ $labels.instance }} foi reiniciada nos ultimos 5 minutos"
+ 
+      - alert: InodeUsageHigh
+        expr: (node_filesystem_files_free / node_filesystem_files) * 100 < 10
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Uso de inodes alto"
+          description: "A instancia {{ $labels.instance }} esta com menos de 10 por cento de inodes livres"
+ 
+      - alert: ContainerDown
+        expr: absent(container_last_seen)
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container ausente"
+          description: "Um container esperado nao foi detectado nos ultimos 2 minutos"
+ 
+ 
+      - alert: HighSwapUsage
+        expr: (node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes) / node_memory_SwapTotal_bytes * 100 > 50
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Uso de swap elevado"
+          description: "Swap em uso acima de 50 por cento na instancia {{ $labels.instance }}"
+ 
+      - alert: FilesystemReadOnly
+        expr: node_filesystem_readonly == 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Sistema de arquivos somente leitura"
+          description: "O sistema de arquivos da instancia {{ $labels.instance }} esta somente leitura"
+ 
+      - alert: HighHttpLatency
+        expr: probe_http_duration_seconds > 2
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latencia HTTP alta"
+          description: "A resposta HTTP de {{ $labels.instance }} esta acima de 2 segundos"
+ 
+      - alert: HighNetworkConnections
+        expr: node_netstat_Tcp_CurrEstab > 500
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Conexoes de rede altas"
+          description: "Mais de 500 conexoes TCP estabelecidas na instancia {{ $labels.instance }}"
+ 
+      - alert: HighDiskIO
+        expr: rate(node_disk_io_time_seconds_total[2m]) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disco com alta atividade de IO"
+          description: "Disco da instancia {{ $labels.instance }} com uso de IO maior que 50 por cento"
